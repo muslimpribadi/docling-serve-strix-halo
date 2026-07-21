@@ -1,0 +1,21 @@
+name: Docker Image CI
+
+on:
+  push:
+    paths:
+      - 'docling-serve_version.txt'
+      - 'Dockerfile.gfx1151'
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile.gfx1151 --tag docling-serve:rocm72-slim.$(date +%s)
