@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build and Publish to GHCR
 
 on:
   push:
@@ -6,16 +6,71 @@ on:
       - 'docling-serve_version.txt'
       - 'Dockerfile.gfx1151'
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
-  build:
-
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile.gfx1151 --tag docling-serve:rocm72-slim.$(date +%s)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read and Sanitize docling-serve Version
+        id: get_version
+        run: |
+          # 1. Read the file and aggressively strip all whitespace and carriage returns
+          CLEAN_VERSION=$(tr -d '[:space:]' < docling-serve_version.txt)
+          
+          # 2. Fail safely if the file was empty
+          if [ -z "$CLEAN_VERSION" ]; then
+            echo "Error: docling-serve_version.txt is empty or missing."
+            exit 1
+          fi
+          
+          # 3. Validate against Docker's allowed tag characters
+          # (Alphanumeric, underscores, periods, and dashes)
+          if [[ ! "$CLEAN_VERSION" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
+            echo "Error: Version '$CLEAN_VERSION' contains invalid Docker tag characters."
+            exit 1
+          fi
+          
+          # 4. Prevent tags from starting with a period or dash (Docker rule)
+          if [[ "$CLEAN_VERSION" =~ ^[-.] ]]; then
+             echo "Error: Docker tags cannot start with a dash or period."
+             exit 1
+          fi
+
+          # 5. Write the safe string to the environment
+          echo "DOCLING-SERVE_VERSION=$CLEAN_VERSION" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata and Dual-Tag
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ env.DOCLING-SERVE_VERSION }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
