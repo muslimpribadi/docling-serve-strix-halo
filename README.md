@@ -1,4 +1,4 @@
-# docling-serve-strix-halo
+# docling-serve ROCm for AMD Strix Halo
 
 Containerized deployment of [Docling Serve](https://github.com/docling-project/docling-serve) with ROCm 7.2 support, optimized for **AMD Strix Halo (gfx1151)** hardware.
 
