@@ -1,6 +1,6 @@
 # docling-serve-strix-halo
 
-Containerized deployment of [Docling Serve](https://github.com/docling-project/docling-serve) optimized for **AMD Strix Halo (gfx1151)** hardware.
+Containerized deployment of [Docling Serve](https://github.com/docling-project/docling-serve) with ROCm 7.2 support, optimized for **AMD Strix Halo (gfx1151)** hardware.
 
 ## Overview
 
@@ -9,7 +9,7 @@ This repository provides a hardened, production-ready container image that runs 
 ## Key Features
 
 - **Strix Halo Optimized**: Built exclusively for `gfx1151` (AMD Radeon 8060S)
-- **Kernel Pruning**: Removes unused ROCm kernels (~5GB+ image size reduction)
+- **Kernel Pruning**: Removes unused ROCm kernels (~19+GB~ ~16GB image size)
 - **mimalloc Integration**: Preloaded memory allocator for improved throughput
 - **Multi-stage Dockerfile**: Build/runtime separation for lean final images
 - **GitHub Container Registry (GHCR)**: Automated CI/CD pipeline
