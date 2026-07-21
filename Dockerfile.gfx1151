@@ -84,7 +84,7 @@ RUN --mount=from=uv_stage,source=/uv,target=/bin/uv \
     umask 002 && uv sync --frozen --no-dev --all-extras ${UV_SYNC_EXTRA_ARGS}
 
 # -------------------------------------------------------------------------
-# PRUNE UNUSED ROCM KERNELS TO SAVE ~5GB+
+# PRUNE UNUSED ROCM KERNELS
 # -------------------------------------------------------------------------
 RUN find /opt/app-root/lib/python3.12/site-packages/torch/lib/hipblaslt/library/ \
     -type f \
@@ -114,8 +114,10 @@ ENV OMP_NUM_THREADS=4 \
     PYTHONIOENCODING=utf-8 \
     LD_PRELOAD=/usr/local/lib/libmimalloc.so \
     DOCLING_SERVE_ARTIFACTS_PATH=/opt/app-root/src/.cache/docling/models \
+    ROCR_VISIBLE_DEVICES=0 \
     HSA_OVERRIDE_GFX_VERSION=11.5.1 \
-    PYTORCH_ROCM_ARCH=gfx1151
+    PYTORCH_ROCM_ARCH=gfx1151 \
+    TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1
 
 EXPOSE 5001
 CMD ["/opt/app-root/bin/docling-serve", "run"]
