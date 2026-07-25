@@ -1,105 +1,181 @@
 <p align="center">
+  <!-- Keep docling-serve upstream branding -->
   <a href="https://github.com/docling-project/docling-serve">
     <img loading="lazy" alt="Docling" src="https://github.com/muslimpribadi/docling-serve-strix-halo/raw/main/assets/docling-serve-pic.webp" width="15%"/>
   </a>
+
+  <!-- Add ROCM logo -->
   <a href="https://github.com/ROCm/ROCm">
     <img loading="lazy" alt="ROCm" src="https://github.com/muslimpribadi/docling-serve-strix-halo/raw/main/assets/amd-rocm-logo.webp" width="15%"/>
   </a>
 </p>
 
-# Docling Serve with ROCm for AMD Strix Halo
+<p align="center">
+  <!-- GitHub Actions Build Status -->
+  <a href="https://github.com/muslimpribadi/docling-serve-strix-halo/actions">
+    <img src="https://github.com/muslimpribadi/docling-serve-strix-halo/actions/workflows/build-and-push.yml/badge.svg" alt="Build Status">
+  </a>
+  
+  <!-- GHCR Link -->
+  <a href="https://github.com/muslimpribadi/docling-serve-strix-halo/pkgs/container/docling-serve-strix-halo">
+    <img src="https://img.shields.io/badge/GHCR-Ready-blue?logo=docker" alt="GHCR Package">
+  </a>
+
+  <!-- Upstream Docling Serve -->
+  <a href="https://github.com/docling-project/docling-serve">
+    <img src="https://img.shields.io/badge/Upstream-Docling_Serve-purple?logo=github" alt="Upstream Project">
+  </a>
+
+  <!-- License -->
+  <a href="https://github.com/muslimpribadi/docling-serve-strix-halo/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+  </a>
+</p>
+
+# 🚀 Docling Serve with ROCm for AMD Strix Halo
 
 Containerized deployment of [Docling Serve](https://github.com/docling-project/docling-serve) with ROCm 7.2 support, optimized for **AMD Strix Halo (gfx1151)** hardware.
 
-## Overview
+## 📖 Overview
 
-This repository provides a hardened, production-ready container image that runs Docling as an API service. It is specifically tuned for the AMD Radeon 8060S GPU found in Strix Halo systems, with ROCm kernel pruning and architecture-specific optimizations to minimize footprint and maximize performance.
+This repository provides a hardened, production-ready container image that runs Docling as an API service. It is specifically tuned for the AMD Radeon 8060S GPU found in Strix Halo systems (`gfx1151`), utilizing ROCm kernel pruning and architecture-specific optimizations to minimize footprint and maximize performance.
 
-## Key Features
+## ✨ Key Features
 
-- **Strix Halo Optimized**: Built exclusively for `gfx1151` (AMD Radeon 8060S)
-- **Kernel Pruning**: Removes unused ROCm kernels (~19+GB~ ~16GB image size)
-- **mimalloc Integration**: Preloaded memory allocator for improved throughput
-- **Multi-stage Dockerfile**: Build/runtime separation for lean final images
-- **GitHub Container Registry (GHCR)**: Automated CI/CD pipeline
+* **Strix Halo Optimized:** Built exclusively for `gfx1151` (AMD Radeon 8060S).
 
-## Quick Start
 
-### Docker
+* **Kernel Pruning:** Removes unused ROCm kernels, reducing image size from ~19+GB down to ~16GB.
+
+
+* **mimalloc Integration:** Preloaded memory allocator for improved throughput.
+
+
+* **Multi-stage Dockerfile:** Build/runtime separation for lean final images.
+
+
+* **Automated CI/CD:** Automated pipeline publishing directly to the GitHub Container Registry (GHCR).
+
+
+
+## ⚡ Quick Start
+
+Note: You can use `docker` or `podman` interchangeably for the commands below.
+
+**1. Pull the container**
 
 ```bash
-# Pull and run the container
 docker pull ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
-docker run -p 5001:5001 ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
+
 ```
 
-### Podman
+**2. Download initial models**
 
 ```bash
-# Pull and run the container
-podman pull ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
-podman run -p 5001:5001 ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
+docker run -it --rm \
+  -v /mnt/docling-models:/opt/app-root/src/.cache/docling/models \
+  --name docling-serve \
+  ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
+
+# Run from inside the container:
+docling-tools models download layout tableformer picture_classifier rapidocr easyocr
+
 ```
 
-The API is available at `http://localhost:5001` with auto-generated docs at `http://localhost:5001/docs`.
+**3. Run the server**
 
-## Build Locally
+```bash
+docker run \
+  -p 5001:5001 \
+  -e DOCLING_SERVE_ENABLE_UI=true \
+  -v /mnt/docling-models:/opt/app-root/src/.cache/docling/models \
+  --name docling-serve \
+  ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
 
-### Docker
+```
+
+**Service Endpoints:**
+
+* **API:** [http://127.0.0.1:5001](https://www.google.com/search?q=http://127.0.0.1:5001)
+* **API Documentation:** [http://127.0.0.1:5001/docs](https://www.google.com/search?q=http://127.0.0.1:5001/docs)
+* **UI Playground:** [http://127.0.0.1:5001/ui](https://www.google.com/search?q=http://127.0.0.1:5001/ui)
+
+<img loading="lazy" alt="fastapi UI" src="https://github.com/muslimpribadi/docling-serve-strix-halo/raw/main/assets/fastapi-ui.webp" />
+
+Try it out with a simple conversion:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:5001/v1/convert/source' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "sources": [{"kind": "http", "url": "https://arxiv.org/pdf/2501.17887"}]
+  }'
+
+```
+
+**Demonstration UI**
+
+<img loading="lazy" alt="UI input" src="https://github.com/muslimpribadi/docling-serve-strix-halo/raw/main/assets/ui-input.webp" />
+
+<img loading="lazy" alt="UI output" src="https://github.com/muslimpribadi/docling-serve-strix-halo/raw/main/assets/ui-output.webp" />
+
+## 🛠️ Build Locally
+
+To build the image yourself, run the following using Docker or Podman:
 
 ```bash
 docker build -f Dockerfile.gfx1151 -t docling-serve-strix-halo .
+
 ```
 
-### Podman
+## ⚙️ Configuration
 
-```bash
-podman build -f Dockerfile.gfx1151 -t docling-serve-strix-halo .
-```
+### Environment Variables
 
-## Example Conversion
-
-```bash
-curl -X POST 'http://localhost:5001/v1/convert/source' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{"sources": [{"kind": "http", "url": "https://arxiv.org/pdf/2501.17887"}]}'
-```
-
-## Configuration
-
-### Environment variables
-
-Strix halo default environment variables.
+Strix Halo default environment variables:
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| --- | --- | --- |
 | `OMP_NUM_THREADS` | 4 | OpenMP thread count |
 | `HSA_OVERRIDE_GFX_VERSION` | 11.5.1 | Strix Halo GPU override |
 | `PYTORCH_ROCM_ARCH` | gfx1151 | PyTorch ROCm target architecture |
-| `DOCLING_SERVE_ARTIFACTS_PATH` | /opt/app-root/src/.cache/docling/models | Model cache location |
+| `DOCLING_SERVE_ARTIFACTS_PATH` | `/opt/app-root/src/.cache/docling/models` | Model cache location |
 
-Here are the full Docling Serve [configuration](https://github.com/docling-project/docling-serve/blob/main/docs/configuration.md).
+* Full Docling Serve [configuration](https://www.google.com/search?q=https://github.com/docling-project/docling-serve/blob/main/docs/configuration.md).
+* `docling-tools` [reference](https://www.google.com/search?q=https://docling-project.github.io/docling/reference/cli/%23docling-tools-models).
 
 ### Volume Mounts
 
-These mounts are recommended to persist your models:
+It is recommended to mount volumes to persist your downloaded models:
 
 | Host Path | Container Path | Purpose |
-|-----------|----------------|---------|
+| --- | --- | --- |
 | `/mnt/docling-models` | `/opt/app-root/src/.cache/docling/models` | Your models cache directory (`DOCLING_SERVE_ARTIFACTS_PATH`) |
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-When updating docling-serve to version [1.27.0](https://github.com/docling-project/docling-serve/releases/tag/v1.27.0)+, the default model cache may only contain `PP-OCRv4` weights, resulting in `FileNotFoundError` crashes when the engine attempts to load the v6 det_small and rec_small ONNX files.
+When updating docling-serve to version [1.27.0](https://www.google.com/search?q=https://github.com/docling-project/docling-serve/releases/tag/v1.27.0)+, the default model cache may only contain `PP-OCRv4` weights. This can result in a `FileNotFoundError` crash when the engine attempts to load the v6 `det_small` and `rec_small` ONNX files.
 
-The missing `PP-OCRv4` models can be downloaded from huggingface [mpribadi/Docling-RapidOcr](https://huggingface.co/mpribadi/Docling-RapidOcr) this repo consolidates these specific files to restore functionality for document extraction pipelines.
+To restore functionality for document extraction pipelines, download the missing models from the huggingface repository [mpribadi/Docling-RapidOcr](https://www.google.com/search?q=https://huggingface.co/mpribadi/Docling-RapidOcr), which consolidates these specific files.
 
-## CI/CD
+Use `docling-tools` to download them from Hugging Face (use `HF_TOKEN` for a higher rate [limit](https://huggingface.co/docs/hub/en/rate-limits)):
 
-Images are automatically built and published to [GHCR](https://github.com/muslimpribadi/docling-serve-strix-halo/pkgs/container/docling-serve-strix-halo) when there is new docling-serve release.
+```bash
+# Run from inside the container
+docling-tools models download-hf-repo mpribadi/Docling-RapidOcr -o /opt/app-root/src/.cache/docling/models/RapidOcr/
 
-## Acknowledgements
+```
+
+## 🔄 Upstream & CI/CD
+
+* **CI/CD:** Images are automatically built and published to [GHCR](https://www.google.com/search?q=https://github.com/muslimpribadi/docling-serve-strix-halo/pkgs/container/docling-serve-strix-halo) upon new official docling-serve [releases](https://www.google.com/search?q=https://github.com/docling-project/docling-serve/releases).
+
+
+* **Upstream:** Built on top of [docling-project/docling-serve](https://github.com/docling-project/docling-serve). See their docs for full API reference.
+
+## 🙌 Acknowledgements
 
 This project was assisted by **Qwen3.6 35B A3B** in its development and documentation.
 
@@ -111,8 +187,9 @@ This project was assisted by **Qwen3.6 35B A3B** in its development and document
     month = {April},
     year = {2026}
 }
+
 ```
 
-## Upstream
+## License
 
-Built on top of [docling-project/docling-serve](https://github.com/docling-project/docling-serve). See their docs for full API reference.
+MIT License — see [LICENSE](LICENSE) for details.
