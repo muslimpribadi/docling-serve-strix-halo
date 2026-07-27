@@ -1,11 +1,9 @@
-name: Build and Publish to GHCR
+name: Build and Publish
 
 on:
-  push:
-    paths:
-      - 'docling-serve_version.txt'
-      - 'Dockerfile.gfx1151'
-    branches: [ "main" ]
+  schedule:
+    - cron: '20 0 * * *'
+      timezone: 'Asia/Jakarta'
   workflow_dispatch:
 
 env:
@@ -13,65 +11,72 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  check-and-build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
+      
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Read and Sanitize docling-serve Version
-        id: get_version
+      - name: Get upstream docling-serve version and format tag
+        id: upstream
         run: |
-          # 1. Read the file and aggressively strip all whitespace and carriage returns
-          CLEAN_VERSION=$(tr -d '[:space:]' < docling-serve_version.txt)
+          LATEST=$(curl -s https://api.github.com/repos/docling-project/docling-serve/releases/latest | jq -r .tag_name)
           
-          # 2. Fail safely if the file was empty
-          if [ -z "$CLEAN_VERSION" ]; then
-            echo "Error: docling-serve_version.txt is empty or missing."
-            exit 1
-          fi
+          # Concatenate the prefix and the upstream version (e.g., docling-serve-v0.27.0)
+          FORMATTED_TAG="ds-$LATEST"
           
-          # 3. Validate against Docker's allowed tag characters
-          # (Alphanumeric, underscores, periods, and dashes)
-          if [[ ! "$CLEAN_VERSION" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
-            echo "Error: Version '$CLEAN_VERSION' contains invalid Docker tag characters."
-            exit 1
-          fi
+          echo "tag=$FORMATTED_TAG" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists in GHCR
+        id: check_ghcr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PACKAGE_NAME=$(basename ${{ github.repository }})
+          TARGET_TAG="${{ steps.upstream.outputs.tag }}"
           
-          # 4. Prevent tags from starting with a period or dash (Docker rule)
-          if [[ "$CLEAN_VERSION" =~ ^[-.] ]]; then
-             echo "Error: Docker tags cannot start with a dash or period."
-             exit 1
+          # Query GHCR to check if this custom formatted tag already exists
+          TAG_EXISTS=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /users/${{ github.repository_owner }}/packages/container/$PACKAGE_NAME/versions \
+            --jq ".[] | select(.metadata.container.tags[]? == \"$TARGET_TAG\") | .id" || echo "")
+          
+          if [ -n "$TAG_EXISTS" ]; then
+            echo "Tag $TARGET_TAG already exists in GHCR. Stopping."
+            echo "build_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "New version detected ($TARGET_TAG). Proceeding with build."
+            echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
 
-          # 5. Write the safe string to the environment
-          echo "DOCLING-SERVE_VERSION=$CLEAN_VERSION" >> $GITHUB_ENV
+      - name: Checkout repository
+        if: steps.check_ghcr.outputs.build_needed == 'true'
+        uses: actions/checkout@v5
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        if: steps.check_ghcr.outputs.build_needed == 'true'
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata and Dual-Tag
+        if: steps.check_ghcr.outputs.build_needed == 'true'
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=raw,value=ds-${{ env.DOCLING-SERVE_VERSION }}
+            type=raw,value=${{ steps.upstream.outputs.tag }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        if: steps.check_ghcr.outputs.build_needed == 'true'
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile.gfx1151
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-slim
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
