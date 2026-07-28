@@ -101,6 +101,13 @@ RUN find /opt/app-root/lib/python3.12/site-packages/torch/lib/hipblaslt/library/
 # Final Lean Runtime Stage
 ###################################################################################################
 FROM docling-base AS final
+
+# OCI Metadata Labels
+LABEL org.opencontainers.image.title="docling-serve-strix-halo" \
+      org.opencontainers.image.description="Docling-serve container optimized for AMD Ryzen AI Strix Halo (ROCm gfx1151) hardware, designed for high-performance document conversion and OCR." \
+      org.opencontainers.image.source="https://github.com/muslimpribadi/docling-serve-strix-halo" \
+      org.opencontainers.image.licenses="MIT"
+
 USER 1001
 WORKDIR /opt/app-root/src
 
