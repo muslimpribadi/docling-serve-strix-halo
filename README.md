@@ -1,5 +1,7 @@
-<p align="center">
-  <!-- Keep docling-serve upstream branding -->
+<div align="center">
+
+<p>
+    <!-- Keep docling-serve upstream branding -->
   <a href="https://github.com/docling-project/docling-serve">
     <img loading="lazy" alt="Docling" src="https://github.com/muslimpribadi/docling-serve-strix-halo/raw/main/assets/docling-serve-pic.webp" width="15%"/>
   </a>
@@ -10,27 +12,24 @@
   </a>
 </p>
 
-<p align="center">
-  <!-- GitHub Actions Build Status -->
-  <a href="https://github.com/muslimpribadi/docling-serve-strix-halo/actions">
-    <img src="https://github.com/muslimpribadi/docling-serve-strix-halo/actions/workflows/build-and-push.yml/badge.svg" alt="Build Status">
-  </a>
+[![][github-action-shield]][github-action-link]
+[![][github-ghcr-shield]][github-ghcr-link]
+[![][github-upstream-shield]][github-upstream-link]
+[![][github-license-shield]][github-license-link]
+<br>
+[![][github-ghcr-downloads-shield]][github-ghcr-link]
+
+[github-action-shield]: https://github.com/muslimpribadi/docling-serve-strix-halo/actions/workflows/build-and-push.yml/badge.svg
+[github-ghcr-shield]: https://img.shields.io/badge/GHCR-Ready-blue?logo=docker
+[github-upstream-shield]: https://img.shields.io/badge/Upstream-Docling_Serve-purple?logo=github
+[github-license-shield]: https://img.shields.io/badge/License-MIT-green.svg
+[github-ghcr-downloads-shield]: https://ghcr-badge.elias.eu.org/shield/muslimpribadi/docling-serve-strix-halo
+[github-upstream-link]: https://github.com/docling-project/docling-serve
+[github-license-link]: https://github.com/muslimpribadi/docling-serve-strix-halo/blob/main/LICENSE
+[github-action-link]: https://github.com/muslimpribadi/docling-serve-strix-halo/actions
+[github-ghcr-link]: https://github.com/muslimpribadi/docling-serve-strix-halo/pkgs/container/docling-serve-strix-halo
   
-  <!-- GHCR Link -->
-  <a href="https://github.com/muslimpribadi/docling-serve-strix-halo/pkgs/container/docling-serve-strix-halo">
-    <img src="https://img.shields.io/badge/GHCR-Ready-blue?logo=docker" alt="GHCR Package">
-  </a>
-
-  <!-- Upstream Docling Serve -->
-  <a href="https://github.com/docling-project/docling-serve">
-    <img src="https://img.shields.io/badge/Upstream-Docling_Serve-purple?logo=github" alt="Upstream Project">
-  </a>
-
-  <!-- License -->
-  <a href="https://github.com/muslimpribadi/docling-serve-strix-halo/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-  </a>
-</p>
+</div>
 
 # 🚀 Docling Serve with ROCm for AMD Strix Halo
 
