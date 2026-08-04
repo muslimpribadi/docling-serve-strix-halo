@@ -76,7 +76,5 @@ jobs:
         if: steps.check_ghcr.outputs.build_needed == 'true'
         uses: docker/build-push-action@v7
         with:
-          context: .
-          file: ./Dockerfile.gfx1151
           push: true
           tags: ${{ steps.meta.outputs.tags }}
