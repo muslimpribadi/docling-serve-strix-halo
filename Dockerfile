@@ -102,7 +102,7 @@ FROM docling-base AS final
 
 # OCI Metadata Labels
 LABEL org.opencontainers.image.title="docling-serve-strix-halo" \
-      org.opencontainers.image.description="Docling-serve container optimized for AMD Ryzen AI Strix Halo (ROCm gfx1151) hardware, designed for high-performance document conversion and OCR." \
+      org.opencontainers.image.description="Docling-serve container optimized for AMD Ryzen AI Strix Halo (ROCm 7.2 gfx1151) hardware, designed for high-performance document conversion and OCR." \
       org.opencontainers.image.source="https://github.com/muslimpribadi/docling-serve-strix-halo" \
       org.opencontainers.image.licenses="MIT"
 
@@ -111,6 +111,10 @@ WORKDIR /opt/app-root/src
 
 # Copy ONLY the synchronized environment and code, entirely dropping uv caches
 COPY --from=docling-builder --chown=1001:0 /opt/app-root /opt/app-root
+
+# Copy the runtime entrypoint script
+COPY --chown=1001:0 scripts/entrypoint.sh /opt/app-root/bin/entrypoint.sh
+RUN chmod +x /opt/app-root/bin/entrypoint.sh
 
 # Strix Halo specific runtime adjustments
 ENV OMP_NUM_THREADS=4 \
@@ -124,4 +128,6 @@ ENV OMP_NUM_THREADS=4 \
     TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1
 
 EXPOSE 5001
+
+ENTRYPOINT ["/opt/app-root/bin/entrypoint.sh"]
 CMD ["/opt/app-root/bin/docling-serve", "run"]
