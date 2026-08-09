@@ -120,7 +120,6 @@ ENV OMP_NUM_THREADS=4 \
     LC_ALL=en_US.UTF-8 \
     PYTHONIOENCODING=utf-8 \
     LD_PRELOAD=/usr/local/lib/libmimalloc.so \
-    DOCLING_SERVE_ARTIFACTS_PATH=/opt/app-root/src/.cache/docling/models \
     ROCR_VISIBLE_DEVICES=0 \
     HSA_OVERRIDE_GFX_VERSION=11.5.1 \
     PYTORCH_ROCM_ARCH=gfx1151 \
