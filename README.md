@@ -131,8 +131,6 @@ To build the image yourself, run the following using Docker or Podman:
 docker build -t docling-serve-strix-halo .
 ```
 
-> **Note:** `Dockerfile.gfx1151` has been deprecated. The unified `Dockerfile` is now the default and exclusive build target for Strix Halo (`gfx1151`).
-
 ## ⚙️ Configuration
 
 ### Environment Variables
@@ -180,7 +178,8 @@ docling-tools models download-hf-repo mpribadi/Docling-RapidOcr -o /opt/app-root
 
 ## 🙌 Acknowledgements
 
-This project was assisted by **Qwen3.6 35B A3B** in its development and documentation.
+* **Author:** [M.Pribadi](https://github.com/muslimpribadi) and [LUNA bot](https://github.com/luna-bot-agent).
+* This project was assisted by **Qwen3.6 35B A3B** in its development and documentation.
 
 ```bibtex
 @misc{qwen36_35b_a3b,
