@@ -70,18 +70,19 @@ docker pull ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
 
 ```
 
-**2. Download initial models**
+**2. Run with automatic model download**
 
 ```bash
 docker run -it --rm \
   -v /mnt/docling-models:/opt/app-root/src/.cache/docling/models \
+  -e DOCLING_SERVE_ARTIFACTS_PATH=/opt/app-root/src/.cache/docling/models \
   --name docling-serve \
   ghcr.io/muslimpribadi/docling-serve-strix-halo:latest
-
-# Run from inside the container:
-docling-tools models download layout tableformer picture_classifier rapidocr easyocr
-
 ```
+
+The container's entrypoint script automatically downloads required models (`layout`, `tableformer`, `picture_classifier`, `rapidocr`, `easyocr`) on first run. Subsequent runs reuse the cached models.
+
+> **Note:** Omit `DOCLING_SERVE_ARTIFACTS_PATH` to skip automatic model download (models must be pre-populated).
 
 **3. Run the server**
 
@@ -127,9 +128,10 @@ curl -X 'POST' \
 To build the image yourself, run the following using Docker or Podman:
 
 ```bash
-docker build -f Dockerfile.gfx1151 -t docling-serve-strix-halo .
-
+docker build -t docling-serve-strix-halo .
 ```
+
+> **Note:** `Dockerfile.gfx1151` has been deprecated. The unified `Dockerfile` is now the default and exclusive build target for Strix Halo (`gfx1151`).
 
 ## ⚙️ Configuration
 
@@ -142,7 +144,7 @@ Strix Halo default environment variables:
 | `OMP_NUM_THREADS` | 4 | OpenMP thread count |
 | `HSA_OVERRIDE_GFX_VERSION` | 11.5.1 | Strix Halo GPU override |
 | `PYTORCH_ROCM_ARCH` | gfx1151 | PyTorch ROCm target architecture |
-| `DOCLING_SERVE_ARTIFACTS_PATH` | `/opt/app-root/src/.cache/docling/models` | Model cache location |
+| `DOCLING_SERVE_ARTIFACTS_PATH` | `/opt/app-root/src/.cache/docling/models` | Model cache location. **When set, the entrypoint script automatically downloads required models on first run.** |
 
 * Full Docling Serve [configuration](https://www.google.com/search?q=https://github.com/docling-project/docling-serve/blob/main/docs/configuration.md).
 * `docling-tools` [reference](https://www.google.com/search?q=https://docling-project.github.io/docling/reference/cli/%23docling-tools-models).
