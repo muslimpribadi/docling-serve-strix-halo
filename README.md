@@ -45,18 +45,13 @@ This repository provides a hardened, production-ready container image that runs 
 
 * **Strix Halo Optimized:** Built exclusively for `gfx1151` (AMD Radeon 8060S).
 
+* **Leaner Images:** Build/runtime separation, exclude model download, removes unused ROCm kernels. Reducing image size to ~16GB.
 
-* **Kernel Pruning:** Removes unused ROCm kernels, reducing image size from ~19+GB down to ~16GB.
-
+* **Automatic models download:** set the `DOCLING_SERVE_ARTIFACTS_PATH` to trigger default model download.
 
 * **mimalloc Integration:** Preloaded memory allocator for improved throughput.
 
-
-* **Multi-stage Dockerfile:** Build/runtime separation for lean final images.
-
-
 * **Automated CI/CD:** Automated pipeline publishing directly to the GitHub Container Registry (GHCR).
-
 
 
 ## ⚡ Quick Start
