@@ -16,7 +16,7 @@
 [![][github-upstream-shield]][github-upstream-link]
 [![][github-license-shield]][github-license-link]
 <br>
-[![][github-ghcr-shield]][github-ghcr-link] [![][github-ghcr-tag-shield]][github-ghcr-link]
+[![][github-ghcr-shield]][github-ghcr-link] [![][github-ghcr-tag-shield]][github-ghcr-link] [![][github-ghcr-size-shield]][github-ghcr-link]
 <br>
 [![][github-ghcr-downloads-shield]][github-ghcr-link]
 
@@ -25,6 +25,7 @@
 [github-upstream-shield]: https://img.shields.io/badge/Upstream-Docling_Serve-purple?logo=github
 [github-license-shield]: https://img.shields.io/badge/License-MIT-green.svg
 [github-ghcr-downloads-shield]: https://ghcr-badge.elias.eu.org/shield/muslimpribadi/docling-serve-strix-halo
+[github-ghcr-size-shield]: https://img.shields.io/badge/GHCR%20Size-16GB-blue
 [github-ghcr-tag-shield]: https://ghcr-badge.egpl.dev/muslimpribadi/docling-serve-strix-halo/latest_tag?trim=major&label=latest
 [github-upstream-link]: https://github.com/docling-project/docling-serve
 [github-license-link]: https://github.com/muslimpribadi/docling-serve-strix-halo/blob/main/LICENSE
