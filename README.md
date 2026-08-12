@@ -167,7 +167,7 @@ docling-tools models download-hf-repo mpribadi/Docling-RapidOcr -o /opt/app-root
 
 ## 🔄 Upstream & CI/CD
 
-* **CI/CD:** Images are automatically built and published to [GHCR](https://www.google.com/search?q=https://github.com/muslimpribadi/docling-serve-strix-halo/pkgs/container/docling-serve-strix-halo) upon new official docling-serve [releases](https://www.google.com/search?q=https://github.com/docling-project/docling-serve/releases).
+* **CI/CD:** Images are automatically built and published to [GHCR](https://github.com/muslimpribadi/docling-serve-strix-halo/pkgs/container/docling-serve-strix-halo) upon new official docling-serve [releases](https://github.com/docling-project/docling-serve/releases).
 
 
 * **Upstream:** Built on top of [docling-project/docling-serve](https://github.com/docling-project/docling-serve). See their docs for full API reference.
