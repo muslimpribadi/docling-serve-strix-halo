@@ -20,12 +20,24 @@ jobs:
     steps:
       - name: Get upstream docling-serve version and format tag
         id: upstream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST=$(curl -s https://api.github.com/repos/docling-project/docling-serve/releases/latest | jq -r .tag_name)
-          
+          UPSTREAM_VERSION=$(curl -sL \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/docling-project/docling-serve/releases/latest | jq -r '.tag_name')
+
+          if [ -z "$UPSTREAM_VERSION" ] || [ "$UPSTREAM_VERSION" = "null" ]; then
+            echo "::error::Failed to fetch a valid upstream version. The API returned: $UPSTREAM_VERSION"
+            echo "::error::This is likely due to an API rate limit or missing upstream tags."
+            exit 1
+          fi
+
           # Concatenate the prefix and the upstream version (e.g., docling-serve-v0.27.0)
-          FORMATTED_TAG="ds-$LATEST"
-          
+          FORMATTED_TAG="ds-$UPSTREAM_VERSION"
+
+          echo "Detected valid upstream version: $UPSTREAM_VERSION"
           echo "tag=$FORMATTED_TAG" >> $GITHUB_OUTPUT
 
       - name: Check if tag exists in GHCR
