@@ -70,6 +70,10 @@ ARG UV_SYNC_EXTRA_ARGS
 
 COPY --from=source-fetcher --chown=1001:0 /workspace/uv.lock /workspace/pyproject.toml ./
 
+# Define the dedicated virtual environment path to prevent permission conflicts
+ENV UV_PROJECT_ENVIRONMENT="/opt/app-root/src/.venv"
+ENV PATH="/opt/app-root/src/.venv/bin:$PATH"
+
 RUN --mount=from=uv_stage,source=/uv,target=/bin/uv \
     --mount=type=cache,target=/opt/app-root/src/.cache/uv,uid=1001 \
     umask 002 && \
