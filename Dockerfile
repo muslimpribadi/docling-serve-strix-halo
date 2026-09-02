@@ -88,16 +88,14 @@ RUN --mount=from=uv_stage,source=/uv,target=/bin/uv \
 # -------------------------------------------------------------------------
 # PRUNE UNUSED ROCM KERNELS
 # -------------------------------------------------------------------------
-RUN find /opt/app-root/lib/python3.12/site-packages/torch/lib/hipblaslt/library/ \
-    -type f \
-    -name '*.dat' \
-    -not -name '*gfx11*' \
-    -delete && \
-    find /opt/app-root/lib/python3.12/site-packages/torch/lib/rocblas/library/ \
-    -type f \
-    -name '*.dat' \
-    -not -name '*gfx11*' \
-    -delete
+RUN if [ -d "/opt/app-root/src/.venv/lib/python3.12/site-packages/torch/lib/hipblaslt/library/" ]; then \
+        find /opt/app-root/src/.venv/lib/python3.12/site-packages/torch/lib/hipblaslt/library/ \
+        -type f -name '*.dat' -not -name '*gfx11*' -delete; \
+    fi && \
+    if [ -d "/opt/app-root/src/.venv/lib/python3.12/site-packages/torch/lib/rocblas/library/" ]; then \
+        find /opt/app-root/src/.venv/lib/python3.12/site-packages/torch/lib/rocblas/library/ \
+        -type f -name '*.dat' -not -name '*gfx11*' -delete; \
+    fi
 
 ###################################################################################################
 # Final Lean Runtime Stage
