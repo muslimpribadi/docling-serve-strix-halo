@@ -111,6 +111,10 @@ LABEL org.opencontainers.image.title="docling-serve-strix-halo" \
 USER 1001
 WORKDIR /opt/app-root/src
 
+# 1. Export Virtual Environment PATH for the runtime stage
+ENV VIRTUAL_ENV="/opt/app-root/src/.venv"
+ENV PATH="/opt/app-root/src/.venv/bin:$PATH"
+
 # Copy ONLY the synchronized environment and code, entirely dropping uv caches
 COPY --from=docling-builder --chown=1001:0 /opt/app-root /opt/app-root
 
@@ -132,4 +136,4 @@ ENV OMP_NUM_THREADS=4 \
 EXPOSE 5001
 
 ENTRYPOINT ["/opt/app-root/bin/entrypoint.sh"]
-CMD ["/opt/app-root/bin/docling-serve", "run"]
+CMD ["docling-serve", "run"]
