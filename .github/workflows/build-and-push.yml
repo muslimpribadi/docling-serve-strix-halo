@@ -111,8 +111,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          provenance: false
 
       - name: Update README Badge
         if: steps.check_ghcr.outputs.build_needed == 'true'
