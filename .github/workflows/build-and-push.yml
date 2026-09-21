@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: '20 0 * * *'
       timezone: 'Asia/Jakarta'
+  push:
+    branches:
+      - main
+    paths:
+      - 'Dockerfile'
+      - 'scripts/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 env:
@@ -34,31 +41,38 @@ jobs:
             exit 1
           fi
 
-          # Concatenate the prefix and the upstream version (e.g., docling-serve-v0.27.0)
           FORMATTED_TAG="ds-$UPSTREAM_VERSION"
 
           echo "Detected valid upstream version: $UPSTREAM_VERSION"
           echo "tag=$FORMATTED_TAG" >> $GITHUB_OUTPUT
 
-      - name: Check if tag exists in GHCR
+      - name: Check if tag exists in GHCR or force build on code push
         id: check_ghcr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           PACKAGE_NAME=$(basename ${{ github.repository }})
           TARGET_TAG="${{ steps.upstream.outputs.tag }}"
           
-          # Query GHCR to check if this custom formatted tag already exists
+          # Force build on direct repository changes (push/workflow_dispatch) regardless of GHCR tag existence
+          if [ "$EVENT_NAME" = "push" ] || [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "Event '$EVENT_NAME' detected. Forcing build to incorporate local code/Dockerfile changes."
+            echo "build_needed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Query GHCR for scheduled cron runs
           TAG_EXISTS=$(gh api \
             -H "Accept: application/vnd.github+json" \
             /users/${{ github.repository_owner }}/packages/container/$PACKAGE_NAME/versions \
             --jq ".[] | select(.metadata.container.tags[]? == \"$TARGET_TAG\") | .id" || echo "")
           
           if [ -n "$TAG_EXISTS" ]; then
-            echo "Tag $TARGET_TAG already exists in GHCR. Stopping."
+            echo "Tag $TARGET_TAG already exists in GHCR. Skipping scheduled build."
             echo "build_needed=false" >> $GITHUB_OUTPUT
           else
-            echo "New version detected ($TARGET_TAG). Proceeding with build."
+            echo "New upstream version detected ($TARGET_TAG). Proceeding with scheduled build."
             echo "build_needed=true" >> $GITHUB_OUTPUT
           fi
 
@@ -88,22 +102,24 @@ jobs:
         if: steps.check_ghcr.outputs.build_needed == 'true'
         uses: docker/build-push-action@v7
         with:
+          context: .
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Update README Badge
         if: steps.check_ghcr.outputs.build_needed == 'true'
         run: |
-          # Retrieve layer size sum from image manifest in GHCR
           SIZE_BYTES=$(docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest | jq '[.layers[].size] | add')
           SIZE_GB=$(echo "$SIZE_BYTES" | awk '{print int(($1 / 1024 / 1024 / 1024) + 0.5)"GB"}')
 
           echo "Calculated GHCR image size: $SIZE_GB"
 
-          # Replace the github-ghcr-size-shield reference link in README.md
           sed -i "s|\[github-ghcr-size-shield\]: .*|\[github-ghcr-size-shield\]: https://img.shields.io/badge/GHCR%20Size-${SIZE_GB}-blue|g" README.md
 
-          # Commit updated README.md back to repository
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
